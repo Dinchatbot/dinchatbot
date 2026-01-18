@@ -77,11 +77,11 @@
     input.value = "";
 
     try {
-      const res = await fetch("http://localhost:3000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, clientId })
-      });
+      const res = await fetch(new URL("/chat", scriptTag.src).toString(), {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: text, clientId })
+});
 
       const data = await res.json();
       addBubble(data.reply || "Ingen respons.", "bot");
