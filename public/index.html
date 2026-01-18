@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatbot</title>
+  <link rel="stylesheet" href="chatbot.css" />
+</head>
+<body>
+
+  <!-- Floating open button -->
+  <button id="chat-open" aria-label="Åbn chat">Chat</button>
+
+  <!-- Widget -->
+  <div id="chat-widget" class="chat-hidden" role="dialog" aria-label="Chat">
+    <div id="chat-header">
+      <div id="chat-title">Kontakt os</div>
+      <button id="chat-close" aria-label="Luk chat">×</button>
+    </div>
+
+    <div id="chat-messages"></div>
+
+    <form id="chat-form">
+      <input id="user-input" type="text" placeholder="Skriv din besked..." autocomplete="off" />
+      <button id="send-btn" type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="chatbot.js"></script>
+</body>
+</html>
+
+
