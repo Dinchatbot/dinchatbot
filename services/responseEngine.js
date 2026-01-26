@@ -50,7 +50,7 @@ function matchesIntent(normalizedMessage, wordSet, intent) {
 const intents = [
   {
     name: "greeting",
-    keywords: ["hej", "goddag", "hello", "hejsa"],
+    keywords: ["hej", "goddag", "hello", "hejsa", "halløj", "hey","godmorgen", "godaften", "good morning", "good afternoon", "good evening", "hi"],
     responseKey: "greeting",
   },
   {
@@ -63,12 +63,18 @@ const intents = [
       "åbner",
       "lukker",
       "opening hours",
+      "hvornår åbner i",
+      "hvornår lukker i",
+      "hvilke tider har i åbent",
+      "opening hours",
+      "when are you open",
+      "when do you close",
     ],
     responseKey: "openingHours",
   },
   {
     name: "prices",
-    keywords: ["pris", "priser", "koster", "betaling", "honorar", "price", "prices"],
+    keywords: ["pris", "priser", "koster", "betaling", "honorar", "price", "prices","tilbud","hvad koster","hvad er prisen","prisoverslag","cost","pricing"],
     responseKey: "prices",
   },
   {
@@ -89,12 +95,15 @@ const intents = [
       "bestil en tid",
       "booke en tid",
       "book tid",
+      "book appointment",
+      "make an appointment",
+      "schedule",
     ],
     responseKey: "booking",
   },
   {
     name: "contact",
-    keywords: ["kontakt", "telefon", "email", "e-mail", "mail", "nummer", "contact"],
+    keywords: ["kontakt", "telefon", "email", "e-mail", "mail", "nummer", "contact","nummer","kontakt os", "ring", "skriv til", "phone"],
     responseKey: "contact",
   },
   {
@@ -109,8 +118,46 @@ const intents = [
       "hvor er i henne",
       "vej",
       "by",
+      "parkering",
+      "address", 
+      "where are you",
+      "directions",
+      "parking",
     ],
     responseKey: "location",
+  },
+   {
+    name: "shipping",
+    keywords: [
+      "forsendelse", "levering", "fragt", "porto", "sendes", "sender i",
+      "leveringstid", "hvornår kommer", "track", "tracking", "spor",
+      "shipping", "delivery", "shipment", "tracking", "track my order"
+    ],
+    responseKey: "shipping",
+  },
+   {
+    name: "returns",
+    keywords: [
+      "returnering", "retur", "bytte", "refusion", "fortryd", "fortrydelse",
+      "pengene tilbage", "refund", "return", "returns", "exchange", "cancel"
+    ],
+    responseKey: "returns",
+  },
+ {
+    name: "order_status",
+    keywords: [
+      "ordre", "ordrenummer", "min ordre", "ordrestatus", "status på ordre",
+      "hvor er min ordre", "order status", "my order", "order number"
+    ],
+    responseKey: "orderStatus",
+  },
+   {
+    name: "payments",
+    keywords: [
+      "betaling", "betalingsmetoder", "kort", "visa", "mastercard", "mobilepay",
+      "faktura", "ean", "invoice", "payment", "payments","betale","hvordan kan man betale"
+    ],
+    responseKey: "payments",
   },
 ];
 
