@@ -20,33 +20,49 @@ openBtn.addEventListener("click", () => {
   const isHidden = widget.classList.contains("chat-hidden");
 
   if (isHidden) {
-  widget.classList.remove("chat-hidden");
-  input.focus();
+    widget.classList.remove("chat-hidden");
+    input.focus();
+    sendWelcomeIfNeeded();
+  } else {
+    widget.classList.add("chat-hidden");
+  }
+
+  updateOpenButtonText();
 
   // Auto-velkomst når chat åbnes første gang
   sendWelcomeIfNeeded();
-
-} else {
-  widget.classList.add("chat-hidden");
+function updateOpenButtonText() {
+  openBtn.textContent = widget.classList.contains("chat-hidden") ? "Chat" : "Luk";
 }
 });
 
 closeBtn.addEventListener("click", () => {
   widget.classList.add("chat-hidden");
+  updateOpenButtonText();
 });
 
 function addBubble(text, who) {
   const wrap = document.createElement("div");
   wrap.className = `msg ${who}`;
 
+  // Avatar (kun for bot)
+  if (who === "bot") {
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "🤖"; // kan ændres til SVG senere
+    wrap.appendChild(avatar);
+  }
+
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.textContent = text;
 
   wrap.appendChild(bubble);
+
   messagesEl.appendChild(wrap);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
+
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
