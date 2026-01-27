@@ -6,17 +6,29 @@ const messagesEl = document.getElementById("chat-messages");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
 
+let hasWelcomed = false;
+
+function sendWelcomeIfNeeded() {
+  if (hasWelcomed) return;
+  hasWelcomed = true;
+
+  // Du kan ændre teksten her
+  addBubble("Hej! Hvordan kan jeg hjælpe dig i dag?", "bot");
+}
+
 openBtn.addEventListener("click", () => {
   const isHidden = widget.classList.contains("chat-hidden");
 
   if (isHidden) {
-    widget.classList.remove("chat-hidden");
-    input.focus();
-  } else {
-    widget.classList.add("chat-hidden");
-  }
-  {openBtn.textContent = widget.classList.contains("chat-hidden") ? "Chat" : "Luk";
-  }  
+  widget.classList.remove("chat-hidden");
+  input.focus();
+
+  // Auto-velkomst når chat åbnes første gang
+  sendWelcomeIfNeeded();
+
+} else {
+  widget.classList.add("chat-hidden");
+}
 });
 
 closeBtn.addEventListener("click", () => {
