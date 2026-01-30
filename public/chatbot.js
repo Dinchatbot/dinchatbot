@@ -8,6 +8,10 @@ const input = document.getElementById("user-input");
 
 let hasWelcomed = false;
 
+function updateOpenButtonText() {
+  openBtn.textContent = widget.classList.contains("chat-hidden") ? "Chat" : "Luk";
+}
+
 function sendWelcomeIfNeeded() {
   if (hasWelcomed) return;
   hasWelcomed = true;
@@ -28,12 +32,6 @@ openBtn.addEventListener("click", () => {
   }
 
   updateOpenButtonText();
-
-  // Auto-velkomst når chat åbnes første gang
-  sendWelcomeIfNeeded();
-function updateOpenButtonText() {
-  openBtn.textContent = widget.classList.contains("chat-hidden") ? "Chat" : "Luk";
-}
 });
 
 closeBtn.addEventListener("click", () => {
@@ -63,7 +61,6 @@ function addBubble(text, who) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -86,3 +83,6 @@ form.addEventListener("submit", async (e) => {
     addBubble("Der opstod en fejl. Prøv igen senere.", "bot");
   }
 });
+
+// Sæt korrekt tekst ved load
+updateOpenButtonText();
