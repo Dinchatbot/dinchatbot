@@ -14,19 +14,29 @@ app.get("/health", (req, res) => {
 });
 
 app.post("/chat", (req, res) => {
-  try {
-    const { message, clientId } = req.body;
+  const start = Date.now();
 
-    if (!message) {
-      return res.status(400).json({ reply: "Missing 'message' in request body." });
-    }
+  const { message, clientId } = req.body || {};
+  const safeMessage = typeof message === "string" ? message.trim() : "";
 
-    const reply = getBotResponse(message, clientId || "demo_business");
-    return res.json({ reply });
-  } catch (err) {
-    console.error("CHAT ERROR:", err);
-    return res.status(500).json({ reply: "Der opstod en serverfejl." });
+  if (!safeMessage) {
+    return res.json({ reply: "Skriv gerne en besked, så hjælper jeg 😊" });
   }
+
+  const reply = getBotResponse(safeMessage, clientId || "demo_business");
+
+  const latencyMs = Date.now() - start;
+
+  console.log(JSON.stringify({
+    t: new Date().toISOString(),
+    event: "chat_message",
+    clientId: clientId ?? null,
+    message: safeMessage,
+    reply,
+    latencyMs
+  }));
+
+  res.json({ reply });
 });
 
 const PORT = process.env.PORT || 3000;
