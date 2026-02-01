@@ -88,19 +88,24 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
 
   try {
+    const payload = {
+      message: text,
+      clientId: typeof getClientId === "function" ? getClientId() : "demo_business",
+      sessionId: typeof getSessionId === "function" ? getSessionId() : null,
+    };
+
     const res = await fetch("/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    message: text,
-    clientId: getClientId(),
-    sessionId: getSessionId()
-  }),
-});
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    console.log("CHAT RES STATUS:", res.status);
 
     const data = await res.json();
     addBubble(data.reply || "Ingen respons.", "bot");
   } catch (err) {
+    console.error("CHAT FETCH ERROR:", err);
     addBubble("Der opstod en fejl. Prøv igen senere.", "bot");
   }
 });
