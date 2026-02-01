@@ -16,7 +16,7 @@ app.get("/health", (req, res) => {
 app.post("/chat", (req, res) => {
   const start = Date.now();
 
-  const { message, clientId } = req.body || {};
+  const { message, clientId = "demo_business", sessionId = null } = req.body || {};
   const safeMessage = typeof message === "string" ? message.trim() : "";
 
   if (!safeMessage) {
@@ -33,6 +33,7 @@ app.post("/chat", (req, res) => {
   t: new Date().toISOString(),
   event: "chat_message",
   clientId: clientId ?? null,
+  sessionId,
   message: safeMessage,
   reply,
   intent,

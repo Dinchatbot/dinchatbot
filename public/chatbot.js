@@ -6,6 +6,23 @@ const messagesEl = document.getElementById("chat-messages");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
 
+// --- SessionId (one per browser/session) ---
+const SESSION_KEY = "dcb_session_id";
+
+function getSessionId() {
+  let sessionId = localStorage.getItem(SESSION_KEY);
+
+  if (!sessionId) {
+    sessionId =
+      (crypto.randomUUID && crypto.randomUUID()) ||
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    localStorage.setItem(SESSION_KEY, sessionId);
+  }
+
+  return sessionId;
+}
+
 let hasWelcomed = false;
 
 function updateOpenButtonText() {
@@ -74,7 +91,10 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({
+      message: text,
+      clientId: getClientId(),
+      sessionId: getSessionId()
     });
 
     const data = await res.json();
