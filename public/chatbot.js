@@ -89,13 +89,14 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const res = await fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-      message: text,
-      clientId: getClientId(),
-      sessionId: getSessionId()
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    message: text,
+    clientId: getClientId(),
+    sessionId: getSessionId()
+  }),
+});
 
     const data = await res.json();
     addBubble(data.reply || "Ingen respons.", "bot");
