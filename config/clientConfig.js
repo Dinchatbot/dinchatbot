@@ -3,7 +3,7 @@
 const clients = {
   demo_business: {
     responses: {
-      greeting: "Hej. Hvordan kan jeg hjælpe dig i dag?",
+      greeting: "Hej! Hvordan kan jeg hjælpe dig i dag?"
       openingHours: "Vi har åbent mandag til fredag kl. 09:00–17:00.",
       prices: "Priser afhænger af den konkrete ydelse. Kontakt os gerne for et konkret tilbud.",
       booking: "Du kan booke en tid via vores hjemmeside.",
@@ -14,6 +14,15 @@ const clients = {
       orderStatus: "Send gerne dit ordrenummer, så kan vi hjælpe med status. Alternativt kan du finde status i din ordrebekræftelse/tracking.",
       payments: "Vi tager imod kortbetaling og MobilePay. Kontakt os ved behov for faktura.",
       fallback: "Jeg kan desværre ikke besvare det spørgsmål. Kontakt os venligst for yderligere information."
+      humanSupport: `
+Selvfølgelig — her er de hurtigste måder at få fat i os:
+
+• E-mail: support@dinchatbot.com
+• Telefon: +45 12 34 56 78
+• Supporttid: Man–Fre 09:00–16:00
+
+Skriv gerne kort hvad det handler om + evt. ordrenummer.
+`.trim(),
     }
   }
 };

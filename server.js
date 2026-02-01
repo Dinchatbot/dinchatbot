@@ -23,18 +23,22 @@ app.post("/chat", (req, res) => {
     return res.json({ reply: "Skriv gerne en besked, så hjælper jeg 😊" });
   }
 
-  const reply = getBotResponse(safeMessage, clientId || "demo_business");
-
+  const result = getBotResponse(safeMessage, clientId || "demo_business");
+  const reply = result.reply;
+  const isFallback = result.isFallback;
+  const intent = result.intent;
   const latencyMs = Date.now() - start;
 
   console.log(JSON.stringify({
-    t: new Date().toISOString(),
-    event: "chat_message",
-    clientId: clientId ?? null,
-    message: safeMessage,
-    reply,
-    latencyMs
-  }));
+  t: new Date().toISOString(),
+  event: "chat_message",
+  clientId: clientId ?? null,
+  message: safeMessage,
+  reply,
+  intent,
+  isFallback,
+  latencyMs
+}));
 
   res.json({ reply });
 });
