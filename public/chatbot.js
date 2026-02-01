@@ -6,18 +6,38 @@ const messagesEl = document.getElementById("chat-messages");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("user-input");
 
-// --- SessionId (one per browser/session) ---
+// --- ClientId + SessionId (stable production MVP) ---
+function getClientId() {
+  const scriptEl = document.querySelector('script[src*="chatbot.js"][data-client-id]');
+  return scriptEl?.dataset?.clientId || "demo_business";
+}
+
 const SESSION_KEY = "dcb_session_id";
 
 function getSessionId() {
-  let sessionId = localStorage.getItem(SESSION_KEY);
+  let sessionId = null;
+
+  try {
+    sessionId = localStorage.getItem(SESSION_KEY);
+  } catch (e) {
+    // ignore
+  }
 
   if (!sessionId) {
-    sessionId =
-      (crypto.randomUUID && crypto.randomUUID()) ||
-      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const hasCryptoUUID =
+      typeof globalThis !== "undefined" &&
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function";
 
-    localStorage.setItem(SESSION_KEY, sessionId);
+    sessionId = hasCryptoUUID
+      ? globalThis.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    try {
+      localStorage.setItem(SESSION_KEY, sessionId);
+    } catch (e) {
+      // ignore
+    }
   }
 
   return sessionId;
