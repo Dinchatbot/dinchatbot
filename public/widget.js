@@ -11,6 +11,13 @@
   root.id = "dinchatbot-root";
   document.body.appendChild(root);
 
+  // ✅ Force widget above WP themes (z-index + fixed position)
+  root.style.position = "fixed";
+  root.style.right = "20px";
+  root.style.bottom = "20px";
+  root.style.zIndex = "2147483647";
+  root.style.pointerEvents = "auto";
+
   // --- 3) Load CSS once ---
   const cssHref = scriptTag.src.replace("widget.js", "chatbot.css");
   if (!document.querySelector(`link[href="${cssHref}"]`)) {
@@ -44,7 +51,23 @@
     </div>
   `;
 
-  // --- 5) SessionId (same logic as main app, crash-safe) ---
+  // ✅ Extra safety: keep widget clickable even with theme overlays
+  const openBtn = root.querySelector("#chat-open");
+  const widget = root.querySelector("#chat-widget");
+
+  if (openBtn) {
+    openBtn.style.position = "relative";
+    openBtn.style.zIndex = "2147483647";
+    openBtn.style.pointerEvents = "auto";
+  }
+
+  if (widget) {
+    widget.style.position = "relative";
+    widget.style.zIndex = "2147483647";
+    widget.style.pointerEvents = "auto";
+  }
+
+  // --- 5) SessionId (crash-safe) ---
   const SESSION_KEY = "dcb_session_id";
 
   function getSessionId() {
@@ -72,12 +95,16 @@
   }
 
   // --- 6) DOM refs ---
-  const openBtn = root.querySelector("#chat-open");
-  const widget = root.querySelector("#chat-widget");
   const closeBtn = root.querySelector("#chat-close");
   const messagesEl = root.querySelector("#chat-messages");
   const form = root.querySelector("#chat-form");
   const input = root.querySelector("#user-input");
+
+  // ✅ Guard: if something is missing, don’t crash the page
+  if (!openBtn || !widget || !closeBtn || !messagesEl || !form || !input) {
+    console.warn("Widget: missing DOM elements, aborting init.");
+    return;
+  }
 
   // --- 7) Open / close behaviour ---
   function updateButton() {
@@ -115,7 +142,7 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  // --- 9) Submit handler (robust, same contract as backend expects) ---
+  // --- 9) Submit handler ---
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -126,18 +153,15 @@
     input.value = "";
 
     try {
-      const res = await fetch(
-        new URL("/chat", scriptTag.src).toString(),
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: text,
-            clientId,
-            sessionId: getSessionId(),
-          }),
-        }
-      );
+      const res = await fetch(new URL("/chat", scriptTag.src).toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          clientId,
+          sessionId: getSessionId(),
+        }),
+      });
 
       const data = await res.json();
       addBubble(data.reply || "Ingen respons.", "bot");
