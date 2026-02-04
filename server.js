@@ -16,32 +16,60 @@ app.get("/health", (req, res) => {
 app.post("/chat", (req, res) => {
   const start = Date.now();
 
-  const { message, clientId = "demo_business", sessionId = null } = req.body || {};
-  const safeMessage = typeof message === "string" ? message.trim() : "";
+  try {
+    const {
+      message,
+      clientId = "demo_business",
+      sessionId = null,
+      msgIndex = null,
+    } = req.body || {};
 
-  if (!safeMessage) {
-    return res.json({ reply: "Skriv gerne en besked, så hjælper jeg 😊" });
+    const safeMessage =
+      typeof message === "string" ? message.trim() : "";
+
+    if (!safeMessage) {
+      return res.json({
+        reply: "Skriv gerne en besked, så hjælper jeg 😊",
+      });
+    }
+
+    // Logging 2.0-compatible response
+    const result = getBotResponse(safeMessage, clientId);
+
+    const reply = result?.reply || "Der opstod en fejl.";
+    const intent = result?.intent ?? null;
+    const isFallback = Boolean(result?.isFallback);
+
+    const latencyMs = Date.now() - start;
+
+    // Structured log
+    console.log(
+      JSON.stringify({
+        t: new Date().toISOString(),
+        event: "chat_message",
+
+        clientId,
+        sessionId,
+        msgIndex,
+
+        message: safeMessage,
+        reply,
+
+        intent,
+        isFallback,
+
+        latencyMs,
+      })
+    );
+
+    return res.json({ reply });
+  } catch (err) {
+    console.error("CHAT ERROR:", err);
+
+    return res.status(500).json({
+      reply: "Der opstod en serverfejl. Prøv igen senere.",
+    });
   }
-
-  const result = getBotResponse(safeMessage, clientId || "demo_business");
-  const reply = result.reply;
-  const isFallback = result.isFallback;
-  const intent = result.intent;
-  const latencyMs = Date.now() - start;
-
-  console.log(JSON.stringify({
-  t: new Date().toISOString(),
-  event: "chat_message",
-  clientId: clientId ?? null,
-  sessionId,
-  message: safeMessage,
-  reply,
-  intent,
-  isFallback,
-  latencyMs
-}));
-
-  res.json({ reply });
 });
 
 const PORT = process.env.PORT || 3000;
