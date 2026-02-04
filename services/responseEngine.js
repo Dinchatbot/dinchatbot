@@ -208,26 +208,25 @@ export function getBotResponse(userMessage, clientId = "demo_business") {
 
   // Empty message safety
   if (!normalizedMessage) {
-    return { reply: FALLBACK_TEXT, isFallback: true, intent: null };
+    return { reply: FALLBACK_TEXT, intent: null, isFallback: true };
   }
 
-  const best = findBestMatch(normalizedMessage, wordSet);
+  const matched = intents.find((intent) =>
+    matchesIntent(normalizedMessage, wordSet, intent)
+  );
 
-  if (!best) {
-    return { reply: FALLBACK_TEXT, isFallback: true, intent: null };
+  if (!matched) {
+    return { reply: FALLBACK_TEXT, intent: null, isFallback: true };
   }
 
-  const reply =
-    responses[best.intent.responseKey] ||
-    FALLBACK_TEXT;
+  const reply = responses[matched.responseKey] || FALLBACK_TEXT;
 
-  // If responseKey missing -> treat as fallback (because user didn't get intended answer)
-  const isFallback =
-    !responses[best.intent.responseKey] ? true : false;
+  // If the intended responseKey is missing, treat it as fallback (safer)
+  const isFallback = !responses[matched.responseKey];
 
   return {
     reply,
+    intent: matched.name,
     isFallback,
-    intent: best.intent.name,
-  };
+};
 }
