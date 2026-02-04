@@ -15,7 +15,6 @@ function normalize(text = "") {
     .trim();
 }
 
-/** Convert message into a Set of words for whole-word matching */
 function toWordSet(text) {
   const n = normalize(text);
   if (!n) return new Set();
@@ -23,9 +22,13 @@ function toWordSet(text) {
 }
 
 /**
- * Your intents (raw).
- * NOTE: We compile/normalize keywords once below for performance + stability.
+ * @typedef {Object} Intent
+ * @property {string} name
+ * @property {string[]} keywords
+ * @property {string} responseKey
  */
+
+/** @type {Intent[]} */
 const intents = [
   {
     name: "greeting",
@@ -58,9 +61,8 @@ const intents = [
     name: "booking",
     keywords: [
       "book", "booking", "bestil", "aftale", "reservation", "reserver",
-      "tid", // whole-word match prevents "åbningstider" bug
+      "tid",
       "tidspunkt",
-      // phrase keywords (higher recall)
       "book en tid", "bestil tid", "bestille tid", "bestil en tid",
       "booke en tid", "book tid",
       "book appointment", "make an appointment", "schedule",
@@ -119,24 +121,28 @@ const intents = [
     ],
     responseKey: "payments",
   },
-
-  // ✅ Handoff / human support intent (no AI)
   {
     name: "human_support",
     keywords: [
       "support", "kundeservice", "menneske", "medarbejder", "agent",
       "tal med", "snak med", "kontakt support", "ring til jer",
     ],
-    responseKey: "humanSupport", // add this in clientConfig responses
+    responseKey: "humanSupport",
   },
 ];
 
 /**
- * Compile intents once:
- * - normalize keywords
- * - mark phrase vs word
- * - de-duplicate normalized keywords
+ * @typedef {Object} CompiledKeyword
+ * @property {string} text
+ * @property {boolean} isPhrase
+ * @property {number} length
  */
+
+/**
+ * @typedef {Intent & { compiledKeywords: CompiledKeyword[] }} CompiledIntent
+ */
+
+/** @type {CompiledIntent[]} */
 const compiledIntents = intents.map((intent) => {
   const seen = new Set();
   const compiledKeywords = intent.keywords
@@ -157,12 +163,19 @@ const compiledIntents = intents.map((intent) => {
 });
 
 /**
- * Score-based match:
- * - Phrase match gets higher score than word match
- * - Longer phrases win over shorter (reduces accidental matches)
- * Returns: { intent, keyword, score } or null
+ * @typedef {Object} BestMatch
+ * @property {CompiledIntent} intent
+ * @property {string} keyword
+ * @property {number} score
+ */
+
+/**
+ * @param {string} normalizedMessage
+ * @param {Set<string>} wordSet
+ * @returns {BestMatch | null}
  */
 function findBestMatch(normalizedMessage, wordSet) {
+  /** @type {BestMatch | null} */
   let best = null;
 
   for (const intent of compiledIntents) {
@@ -172,16 +185,14 @@ function findBestMatch(normalizedMessage, wordSet) {
 
       if (kw.isPhrase) {
         matched = normalizedMessage.includes(kw.text);
-        if (matched) score = 2000 + kw.length; // phrases dominate, longer wins
+        if (matched) score = 2000 + kw.length;
       } else {
         matched = wordSet.has(kw.text);
-        if (matched) score = 1000 + kw.length; // words lower priority than phrases
+        if (matched) score = 1000 + kw.length;
       }
 
-      if (matched) {
-        if (!best || score > best.score) {
-          best = { intent, keyword: kw.text, score };
-        }
+      if (matched && (!best || score > best.score)) {
+        best = { intent, keyword: kw.text, score };
       }
     }
   }
@@ -190,9 +201,9 @@ function findBestMatch(normalizedMessage, wordSet) {
 }
 
 /**
- * Main response function
+ * Main response function (Logging 2.0 output)
  * @param {string} userMessage
- * @param {string} clientId - used to select config per customer
+ * @param {string} clientId
  * @returns {{ reply: string, isFallback: boolean, intent: string | null }}
  */
 export function getBotResponse(userMessage, clientId = "demo_business") {
@@ -206,27 +217,22 @@ export function getBotResponse(userMessage, clientId = "demo_business") {
   const normalizedMessage = normalize(userMessage);
   const wordSet = toWordSet(userMessage);
 
-  // Empty message safety
   if (!normalizedMessage) {
     return { reply: FALLBACK_TEXT, intent: null, isFallback: true };
   }
 
-  const matched = intents.find((intent) =>
-    matchesIntent(normalizedMessage, wordSet, intent)
-  );
+  const best = findBestMatch(normalizedMessage, wordSet);
 
-  if (!matched) {
+  if (!best) {
     return { reply: FALLBACK_TEXT, intent: null, isFallback: true };
   }
 
-  const reply = responses[matched.responseKey] || FALLBACK_TEXT;
-
-  // If the intended responseKey is missing, treat it as fallback (safer)
-  const isFallback = !responses[matched.responseKey];
+  const reply = responses[best.intent.responseKey] || FALLBACK_TEXT;
+  const isFallback = !responses[best.intent.responseKey];
 
   return {
     reply,
-    intent: matched.name,
+    intent: best.intent.name,
     isFallback,
-};
+  };
 }
