@@ -8,6 +8,21 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// --- CORS for embeds (WordPress/landing pages) ---
+app.use((req, res, next) => {
+  // Tillad embed fra alle domæner i MVP (kan strammes senere pr kunde)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Preflight
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
 // Health check (valgfrit men rart)
 app.get("/health", (req, res) => {
   res.json({ ok: true });
