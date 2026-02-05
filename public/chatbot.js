@@ -1,4 +1,6 @@
 (() => {
+  let msgIndex = 0;
+
   // --- DOM refs (works when markup exists) ---
   const openBtn = document.getElementById("chat-open");
   const widget = document.getElementById("chat-widget");
@@ -125,11 +127,15 @@
     input.value = "";
 
     try {
+      msgIndex += 1;
+
       const payload = {
-        message: text,
-        clientId: getClientId(),
-        sessionId: getSessionId(),
+       message: text,
+       clientId: getClientId(),
+       sessionId: getSessionId(),
+       msgIndex,
       };
+
 
       const res = await fetch("/chat", {
         method: "POST",
