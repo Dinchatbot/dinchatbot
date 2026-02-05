@@ -55,6 +55,20 @@ app.post("/chat", (req, res) => {
     const intent = result?.intent ?? null;
     const isFallback = Boolean(result?.isFallback);
 
+    // --- Logging 2.0: conversation start (first message only) ---
+const msgIndexNum = msgIndex == null ? null : Number(msgIndex);
+
+if (msgIndexNum === 1) {
+  console.log(JSON.stringify({
+    t: new Date().toISOString(),
+    event: "conversation_start",
+    clientId,
+    sessionId,
+    firstIntent: intent,
+    firstIsFallback: isFallback
+  }));
+}
+
     const latencyMs = Date.now() - start;
 
     // Structured log
