@@ -1,3 +1,5 @@
+let msgIndex = 0;
+
 (function () {
   const scriptTag = document.currentScript;
   const clientId =
@@ -220,6 +222,8 @@
 
     addBubble(text, "user");
     input.value = "";
+    
+    msgIndex += 1;
 
     try {
       const res = await fetch(new URL("/chat", scriptTag.src).toString(), {
@@ -229,6 +233,7 @@
           message: text,
           clientId,
           sessionId: getSessionId(),
+          msgIndex,
         }),
       });
 
